@@ -2,6 +2,7 @@ import multer from "multer";
 
 // Configure multer for storing design images
 const storage = multer.diskStorage({
+  
   destination: function (req, file, cb) {
     cb(null, "./public/temp"); // Temporary folder for uploaded images
   },
