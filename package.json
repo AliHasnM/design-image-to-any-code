@@ -1,0 +1,30 @@
+{
+  "name": "design-image-to-any-code",
+  "version": "1.0.0",
+  "description": "Allow users to upload images (Figma desings, Screenshots, etc) and generate code (React.js with Tailwindcss, HTML + CSS) that matches the desing with high accuracy.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "javascript",
+    "express.js",
+    "mongoose.js",
+    "node.js",
+    "mongodb",
+    "react.js",
+    "image",
+    "to",
+    "code",
+    "designImage",
+    "to",
+    "AnyCode",
+    "generate",
+    "frontend",
+    "code",
+    "through",
+    "images"
+  ],
+  "author": "Ali Hassan",
+  "license": "ISC"
+}
