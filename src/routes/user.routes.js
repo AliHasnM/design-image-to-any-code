@@ -7,9 +7,9 @@ import {
   changeCurrentPassword,
   getCurrentUser,
   updateCurrentUser,
-  deleteUser,
   getImageHistory,
-  updateUserAvatarAndCoverImage,
+  updateUserAvatar,
+  updateUserCoverImage,
 } from "../controllers/user.controllers.js"; // User controllers
 import { upload } from "../middlewares/multer.middleware.js"; // Multer middleware for file uploads
 import { verifyJWT } from "../middlewares/auth.middleware.js"; // JWT verification middleware
@@ -17,7 +17,19 @@ import { verifyJWT } from "../middlewares/auth.middleware.js"; // JWT verificati
 const router = express.Router(); // Router instance
 
 // User registration route
-router.route("/register").post(registerUser);
+router.route("/register").post(
+  upload.fields([
+    {
+      name: "avatar", // Handle file upload for avatar
+      maxCount: 1, // Maximum 1 file
+    },
+    {
+      name: "coverImage", // Handle file upload for cover image
+      maxCount: 1, // Maximum 1 file
+    },
+  ]),
+  registerUser, // Call the registerUser controller
+);
 
 // User login route
 router.route("/login").post(loginUser);
@@ -32,21 +44,22 @@ router.route("/refresh-token").post(refreshAccessToken);
 router.route("/change-password").patch(verifyJWT, changeCurrentPassword);
 
 // Get current user route
-router.route("/me").get(verifyJWT, getCurrentUser); // Updated path to '/me'
+router.route("/").get(verifyJWT, getCurrentUser); // Updated path to '/me'
 
 // Update current user route
 router.route("/update").patch(verifyJWT, updateCurrentUser);
-
-// Delete current user route
-router.route("/delete").delete(verifyJWT, deleteUser);
 
 // Get image history route
 router.route("/image-history").get(verifyJWT, getImageHistory);
 
 // Update user avatar and cover image route
 router
-  .route("/update-avatar-cover")
-  .patch(verifyJWT, upload.single("file"), updateUserAvatarAndCoverImage); // Ensure to specify the file field
+  .route("/avatar")
+  .patch(verifyJWT, upload.single("avatar"), updateUserAvatar);
+
+router
+  .route("/cover-image")
+  .patch(verifyJWT, upload.single("coverImage"), updateUserCoverImage);
 
 // Export the router
 export default router;

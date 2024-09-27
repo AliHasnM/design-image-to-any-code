@@ -23,14 +23,14 @@ const generateAccessAndRefreshTokens = async (userId) => {
   }
 };
 
-// User registration ke liye handler
+// User registration ke liye handler (Complete)
 const registerUser = asyncHandler(async (req, res) => {
   const { username, email, password, fullName } = req.body;
 
   if (
     [username, email, password, fullName].some((field) => field?.trim() === "")
   ) {
-    throw new ApiError(400, "Sab fields required hain");
+    throw new ApiError(400, "ll fields are required");
   }
 
   const existedUser = await User.findOne({
@@ -38,13 +38,11 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   if (existedUser) {
-    throw new ApiError(
-      409,
-      "Email ya username ke saath user pehle se maujood hai",
-    );
+    throw new ApiError(409, "User with email or username already exists");
   }
 
   const avatarLocalPath = req.files?.avatar[0]?.path;
+
   let coverImageLocalPath;
   if (
     req.files &&
@@ -55,17 +53,14 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   if (!avatarLocalPath) {
-    throw new ApiError(400, "Avatar file zaroori hai - multer upload nahi hua");
+    throw new ApiError(400, "Avatar file is required - multer not upload");
   }
 
   const avatar = await uploadDesignImage(avatarLocalPath);
   const coverImage = await uploadDesignImage(coverImageLocalPath);
 
   if (!avatar) {
-    throw new ApiError(
-      400,
-      "Avatar file zaroori hai - cloudinary upload nahi hua",
-    );
+    throw new ApiError(400, "Avatar file is required - cloudinary not upload");
   }
 
   const user = await User.create({
@@ -82,15 +77,15 @@ const registerUser = asyncHandler(async (req, res) => {
   );
 
   if (!createdUser) {
-    throw new ApiError(500, "User ko register karte waqt kuch galat hua");
+    throw new ApiError(500, "Something went wrong while registering the user");
   }
 
   return res
     .status(201)
-    .json(new ApiResponse(200, createdUser, "User successfully register hua"));
+    .json(new ApiResponse(200, createdUser, "User Registered Successfully"));
 });
 
-// User login karne ka handler
+// User login karne ka handler (Complete)
 const loginUser = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
 
@@ -158,7 +153,7 @@ const logoutUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "User successfully logged Out"));
 });
 
-// Access token refresh karne ka handler
+// Access token refresh karne ka handler (Complete)
 const refreshAccessToken = asyncHandler(async (req, res) => {
   const incomingRefreshToken =
     req.cookies.refreshToken || req.body.refreshToken;
@@ -206,7 +201,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
-// Current user's password change karne ka function
+// Current user's password change karne ka function (Complete)
 const changeCurrentPassword = asyncHandler(async (req, res) => {
   const { oldPassword, newPassword } = req.body;
   const user = await User.findById(req.user?._id);
@@ -316,38 +311,84 @@ const getImageHistory = asyncHandler(async (req, res) => {
     );
 });
 
-// Update user avatar and cover image
-const updateUserAvatarAndCoverImage = asyncHandler(async (req, res) => {
-  const avatarLocalPath = req.files?.avatar[0]?.path;
-  const coverImageLocalPath = req.files?.coverImage[0]?.path;
+// Function to update the current user's avatar
+const updateUserAvatar = asyncHandler(async (req, res) => {
+  const avatarLocalPath = req.file?.path;
 
-  const user = await User.findById(req.user._id);
-
-  if (!user) {
-    throw new ApiError(404, "User nahi milta");
+  // If avatar file is missing, throw an error
+  if (!avatarLocalPath) {
+    throw new ApiError(400, "Avatar file is missing - multer side");
   }
 
-  if (avatarLocalPath) {
-    const avatar = await uploadDesignImage(avatarLocalPath);
-    user.avatar = avatar.url; // Update avatar URL in user object
+  // TODO: delete old image - assignment
+
+  // Upload the avatar to Cloudinary
+  const avatar = await uploadDesignImage(avatarLocalPath);
+
+  // If there was an error uploading the avatar, throw an error
+  if (!avatar.url) {
+    throw new ApiError(
+      400,
+      "Error while uploading on avatar - cloudinary side",
+    );
   }
 
-  if (coverImageLocalPath) {
-    const coverImage = await uploadDesignImage(coverImageLocalPath);
-    user.coverImage = coverImage.url; // Update cover image URL in user object
-  }
+  // Find the user by their ID and update their avatar
+  const user = await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set: {
+        avatar: avatar.url,
+      },
+    },
+    {
+      new: true,
+    },
+  ).select("-password");
 
-  await user.save({ validateBeforeSave: false });
-
+  // Return a success response with the updated user details
   return res
     .status(200)
-    .json(
-      new ApiResponse(
-        200,
-        user,
-        "User avatar aur cover image successfully updated",
-      ),
+    .json(new ApiResponse(200, user, "Avatar Image updated successfully"));
+});
+
+// Function to update the current user's cover image
+const updateUserCoverImage = asyncHandler(async (req, res) => {
+  const coverImageLocalPath = req.file?.path;
+
+  // If cover image file is missing, throw an error
+  if (!coverImageLocalPath) {
+    throw new ApiError(400, "Cover Image file is missing - multer side");
+  }
+
+  // Upload the cover image to Cloudinary
+  const coverImage = await uploadDesignImage(coverImageLocalPath);
+
+  // If there was an error uploading the cover image, throw an error
+  if (!coverImage.url) {
+    throw new ApiError(
+      400,
+      "Error while uploading on Cover Image - cloudinary side",
     );
+  }
+
+  // Find the user by their ID and update their cover image
+  const user = await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set: {
+        coverImage: coverImage.url,
+      },
+    },
+    {
+      new: true,
+    },
+  ).select("-password");
+
+  // Return a success response with the updated user details
+  return res
+    .status(200)
+    .json(new ApiResponse(200, user, "Cover Image updated successfully"));
 });
 
 // Export all controllers
@@ -361,5 +402,6 @@ export {
   updateCurrentUser,
   deleteUser,
   getImageHistory,
-  updateUserAvatarAndCoverImage,
+  updateUserAvatar,
+  updateUserCoverImage,
 };

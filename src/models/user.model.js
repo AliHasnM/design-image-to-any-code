@@ -28,6 +28,9 @@ const userSchema = new Schema(
     avatar: {
       type: String, // URL to the user's avatar image (from Cloudinary)
     },
+    coverImage: {
+      type: String, // URL to the user's cover image (from Cloudinary)
+    },
     password: {
       type: String,
       required: true,
@@ -36,7 +39,7 @@ const userSchema = new Schema(
       type: String,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Pre-save hook to hash password before saving
@@ -61,7 +64,7 @@ userSchema.methods.generateAccessToken = function () {
       fullName: this.fullName,
     },
     process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
+    { expiresIn: process.env.ACCESS_TOKEN_EXPIRY },
   );
 };
 
@@ -72,7 +75,7 @@ userSchema.methods.generateRefreshToken = function () {
       _id: this._id,
     },
     process.env.REFRESH_TOKEN_SECRET,
-    { expiresIn: process.env.REFRESH_TOKEN_EXPIRY }
+    { expiresIn: process.env.REFRESH_TOKEN_EXPIRY },
   );
 };
 
