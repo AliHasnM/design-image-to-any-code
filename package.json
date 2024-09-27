@@ -2,9 +2,10 @@
   "name": "design-image-to-any-code",
   "version": "1.0.0",
   "description": "Allow users to upload images (Figma desings, Screenshots, etc) and generate code (React.js with Tailwindcss, HTML + CSS) that matches the desing with high accuracy.",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js"
   },
   "keywords": [
     "javascript",
@@ -13,18 +14,26 @@
     "node.js",
     "mongodb",
     "react.js",
-    "image",
-    "to",
-    "code",
-    "designImage",
-    "to",
-    "AnyCode",
-    "generate",
-    "frontend",
-    "code",
-    "through",
-    "images"
+    "image-to-code",
+    "designImage-to-AnyCode",
+    "generate-frontend-code-through-images"
   ],
   "author": "Ali Hassan",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.7",
+    "prettier": "^3.3.3"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cloudinary": "^2.5.0",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.6.4",
+    "mongoose-aggregate-paginate-v2": "^1.1.2",
+    "multer": "^1.4.5-lts.1"
+  }
 }
