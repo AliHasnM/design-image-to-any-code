@@ -1,15 +1,19 @@
 import multer from "multer";
-
-// Configure multer for storing design images
+// Configure storage options for multer
 const storage = multer.diskStorage({
-  
+  // Set the destination folder for uploaded files
   destination: function (req, file, cb) {
-    cb(null, "./public/temp"); // Temporary folder for uploaded images
+    // Specify the folder where files should be stored
+    cb(null, "./public/temp");
   },
+  // Set the filename for the uploaded files
   filename: function (req, file, cb) {
-    cb(null, file.originalname); // Keep the original file name
+    // Use the original filename of the uploaded file
+    cb(null, file.originalname);
   },
 });
 
-// Middleware to handle image uploads
-export const upload = multer({ storage });
+// Create an upload instance with the configured storage
+export const upload = multer({
+  storage,
+});

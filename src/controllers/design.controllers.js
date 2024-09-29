@@ -2,19 +2,32 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { Design } from "../models/design.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { uploadDesignImage } from "../utils/cloudinary.js"; // Cloudinary upload utility
 
 // Design banane ka function
 const createDesign = asyncHandler(async (req, res) => {
   const { title, description } = req.body;
   const userId = req.user?._id;
 
-  // Naya design banate waqt imageUrl ko file se lena
-  const imageUrl = req.file.path; // Assuming multer saves the image and provides a path
+  // Check for uploaded file (using req.file, not req.files)
+  if (!req.file) {
+    throw new ApiError(400, "Image file is required");
+  }
 
+  const imageFileLocalPath = req.file.path;
+
+  // Upload the file to Cloudinary
+  const imageFile = await uploadDesignImage(imageFileLocalPath);
+
+  if (!imageFile) {
+    throw new ApiError(400, "Failed to upload Image to Cloudinary");
+  }
+
+  // Create the new design with the image URL from Cloudinary
   const newDesign = await Design.create({
     title,
     description,
-    imageUrl,
+    imageUrl: imageFile.url, // Use Cloudinary URL
     user: userId,
   });
 
@@ -57,15 +70,26 @@ const updateDesign = asyncHandler(async (req, res) => {
 
   const { title, description } = req.body;
 
-  // Agar imageUrl update karna hai, toh usse file se lena
+  // Agar imageUrl update karna hai, toh pehle file ko Cloudinary par upload karen
   if (req.file) {
-    design.imageUrl = req.file.path; // Update imageUrl if a new file is uploaded
+    const imageFileLocalPath = req.file.path;
+
+    // Upload the new image file to Cloudinary
+    const uploadedImage = await uploadDesignImage(imageFileLocalPath);
+
+    if (!uploadedImage) {
+      throw new ApiError(400, "Failed to upload Image to Cloudinary");
+    }
+
+    // Update the design's imageUrl with the new Cloudinary URL
+    design.imageUrl = uploadedImage.url;
   }
 
-  // Design ko update karna
+  // Update the design's title and description
   design.title = title || design.title;
   design.description = description || design.description;
 
+  // Save the updated design
   await design.save();
 
   return res
