@@ -1,31 +1,31 @@
-import mongoose from "mongoose";
-import { Code } from "../models/code.model.js"; // Assuming a Code model exists
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { Dashboard } from "../models/dashboard.model.js";
+import { Code } from "../models/code.model.js"; // Assuming you have a Code model
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
 
-// Get user's image and code history
-const getUserImageCodeHistory = asyncHandler(async (req, res) => {
-  const userId = req.user.id; // Assuming user ID is set in req.user by JWT middleware
+// Fetch the user's dashboard stats
+// Fetch the user's dashboard stats
+const getDashboard = asyncHandler(async (req, res) => {
+  const userId = req.params.id; // Extracting user ID from the URL params
 
-  // Fetch all images uploaded by the user
-  const images = await Image.find({ userId }).populate("codeId"); // Populate with associated code details
+  // Try to find the dashboard for the given user
+  let dashboard = await Dashboard.findOne({ user: userId });
 
-  if (!images) {
-    throw new ApiError(404, "No images found for this user");
+  if (!dashboard) {
+    // If dashboard doesn't exist, you can create a default one or return a message
+    dashboard = await Dashboard.create({
+      user: userId,
+      totalGeneratedCodes: 0,
+      totalUploads: 0,
+    });
   }
 
-  // Prepare response data
-  const responseData = images.map((image) => ({
-    imageUrl: image.imageUrl, // Adjust according to your image model field
-    code: image.codeId ? image.codeId.code : null, // Adjust according to your code model field
-    createdAt: image.createdAt,
-  }));
-
-  // Return the image and code history as a response
   return res
     .status(200)
-    .json(new ApiResponse(200, responseData, "User Image and Code History"));
+    .json(
+      new ApiResponse(200, dashboard, "Dashboard data fetched successfully"),
+    );
 });
 
-export { getUserImageCodeHistory };
+export { getDashboard };

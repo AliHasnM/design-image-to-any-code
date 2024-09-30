@@ -1,11 +1,10 @@
-import { Router } from "express";
-import { verifyJWT } from "../middlewares/auth.middleware.js";
-import { getUserImageCodeHistory } from "../controllers/dashboard.controllers.js";
+import express from "express";
+import { getDashboard } from "../controllers/dashboard.controllers.js"; // Adjust the path if needed
+import { verifyJWT } from "../middlewares/auth.middleware.js"; // Assuming you have authentication middleware
 
-const router = Router();
+const router = express.Router();
 
-// Define a GET route to get user's image and code history
-router.route("/image-code-history").get(verifyJWT, getUserImageCodeHistory);
+// Fetch dashboard data for a specific user based on the userId passed in params
+router.route("/:id").get(verifyJWT, getDashboard);
 
-// Export the router to be used in other parts of the application
 export default router;
