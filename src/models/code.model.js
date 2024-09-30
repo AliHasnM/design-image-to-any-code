@@ -4,16 +4,20 @@ import mongoose, { Schema } from "mongoose";
 const codeSchema = new Schema(
   {
     design: {
-      type: Schema.Types.ObjectId,
-      ref: "Design", // Reference to the related design
+      type: String, // Cloudinary url
       required: true,
     },
     generatedCode: {
-      type: String, // Generated code from the design
+      type: String, // Cloudinary url
       required: true,
     },
     codeType: {
       type: String, // Type of code generated (e.g., HTML, CSS, React)
+      required: true,
+    },
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "User", // Reference to the user who uploaded the design
       required: true,
     },
   },

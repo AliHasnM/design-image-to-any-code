@@ -24,14 +24,12 @@ app.use(cookieParser());
 
 // Routes import
 import userRouter from "./routes/user.routes.js";
-import designRouter from "./routes/design.routes.js";
 import codeRouter from "./routes/code.routes.js";
 import healthcheckRouter from "./routes/healthcheck.routes.js";
 import dashboardRouter from "./routes/dashboard.routes.js";
 
 // Routes declaration
 app.use("/api/v1/users", userRouter);
-app.use("/api/v1/designes", designRouter);
 app.use("/api/v1/codes", codeRouter);
 app.use("/api/v1/healthcheck", healthcheckRouter);
 app.use("/api/v1/dashboard", dashboardRouter);

@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { Design } from "../models/design.model.js"; // Assuming an Image model exists
 import { Code } from "../models/code.model.js"; // Assuming a Code model exists
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
